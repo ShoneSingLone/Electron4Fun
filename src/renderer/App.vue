@@ -5,11 +5,17 @@
 </template>
 
 <script>
-  export default {
-    name: 'electron4fun'
-  }
+export default {
+  name: "electron4fun"
+};
 </script>
 
-<style>
-  /* CSS */
+<style lang="scss">
+html,
+body,
+#app {
+  height: 100%;
+  overflow: hidden;
+}
+/* CSS */
 </style>

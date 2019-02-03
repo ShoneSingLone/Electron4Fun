@@ -9,6 +9,10 @@
 vue init simulatedgreg/electron-vue Electron4Fun
 ```
 
+
+osenv.home
+os.homedir()
+
 #### Build Setup
 
 ``` bash
