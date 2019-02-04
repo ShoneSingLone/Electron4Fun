@@ -10,6 +10,9 @@ export default {
 };
 </script>
 
+<style src="./assets/stylesheets/reset.min.css">
+</style>
+
 <style lang="scss">
 html,
 body,
@@ -17,5 +20,4 @@ body,
   height: 100%;
   overflow: hidden;
 }
-/* CSS */
 </style>

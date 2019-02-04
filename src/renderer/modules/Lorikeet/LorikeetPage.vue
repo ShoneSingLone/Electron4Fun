@@ -1,8 +1,15 @@
 <template>
   <div id="lorikeet-wrapper">
-    <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
     <div id="toolbar">
-      <div id="current-folder" v-for="(item, index) in homedir" :key="index">{{item.basename}}</div>
+      <el-input placeholder="请输入内容" v-model="search" class="input-with-select">
+        <template slot="prepend">{{currentFolder}}</template>
+        <el-button slot="append" icon="el-icon-search"></el-button>
+      </el-input>
+    </div>
+    <div class="current-folder"></div>
+    <div class="main-view">
+      <file-item :item="item" v-for="(item, index) in itemList" :key="index"/>
+      <!-- <div class="current-folder"></div> -->
     </div>
   </div>
 </template>
@@ -12,85 +19,25 @@
 import os from "os";
 import { resolve, basename } from "path";
 import { readdir as FSreaddir, stat as FSstate } from "@/utils/fs";
+import fileItem from "./Item.vue";
 
 export default {
   name: "LorikeetPage",
   mounted() {
     (async () => {
-      this.homedir = await this.getFilesInFolder();
-      console.log("this.homedir", this.homedir);
+      this.currentFolder = this.getHomedir();
+      this.itemList = await this.getFilesInFolder();
+      console.log("this.itemList", this.itemList);
     })();
   },
   data() {
     return {
-      homedir: "",
-      data: [
-        {
-          label: "一级 1",
-          children: [
-            {
-              label: "二级 1-1",
-              children: [
-                {
-                  label: "三级 1-1-1"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          label: "一级 2",
-          children: [
-            {
-              label: "二级 2-1",
-              children: [
-                {
-                  label: "三级 2-1-1"
-                }
-              ]
-            },
-            {
-              label: "二级 2-2",
-              children: [
-                {
-                  label: "三级 2-2-1"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          label: "一级 3",
-          children: [
-            {
-              label: "二级 3-1",
-              children: [
-                {
-                  label: "三级 3-1-1"
-                }
-              ]
-            },
-            {
-              label: "二级 3-2",
-              children: [
-                {
-                  label: "三级 3-2-1"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      defaultProps: {
-        children: "children",
-        label: "label"
-      }
+      currentFolder: "",
+      itemList: "",
+      search: ""
     };
   },
   methods: {
-    handleNodeClick(data) {
-      console.log(data);
-    },
     getHomedir() {
       return os.homedir();
     },
@@ -125,7 +72,8 @@ export default {
     open(link) {
       this.$electron.shell.openExternal(link);
     }
-  }
+  },
+  components: { fileItem }
 };
 </script>
 
@@ -135,11 +83,33 @@ export default {
 #lorikeet-wrapper {
   height: 100%;
   overflow: scroll;
+  display: flex;
+  flex-flow: column nowrap;
 
-  #current-folder {
-    @include panel();
+  #toolbar {
+    position: fixed;
+    height: 60px;
+    line-height: 60px;
+    width: 100%;
+    background-color: white;
+    z-index: 1;
     @include elevation2();
-    border: 1px solid #f0f0f0;
+  }
+  .current-folder {
+    margin-top: 60px;
+    height: 30px;
+  }
+
+  .main-view {
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    .current-folder {
+      flex: 1;
+      @include panel();
+      @include elevation2();
+      border: 1px solid #f0f0f0;
+    }
   }
 }
 </style>
