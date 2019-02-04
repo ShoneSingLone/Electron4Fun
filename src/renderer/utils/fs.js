@@ -35,6 +35,14 @@ export let readdir = function (file, encoding = "utf-8") {
         })
     })
 };
+export let stat = function (file, encoding = "utf-8") {
+    return new Promise((resolve, reject) => {
+        fs.stat(file, function (err, stat) {
+            if (err) reject(err);
+            else resolve(stat);
+        })
+    })
+};
 
 export let copyFile = function (source, destination, isDelete = false) {
     if (isDelete) {
