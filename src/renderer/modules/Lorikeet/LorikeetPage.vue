@@ -8,7 +8,12 @@
     </div>
     <div class="current-folder"></div>
     <div class="main-view">
-      <file-item :item="item" v-for="(item, index) in itemList" :key="index"/>
+      <file-item
+        :item="item"
+        v-for="(item, index) in itemList"
+        :key="index"
+        @click.native="handleClickItem(item)"
+      />
       <!-- <div class="current-folder"></div> -->
     </div>
   </div>
@@ -20,13 +25,14 @@ import os from "os";
 import { resolve, basename } from "path";
 import { readdir as FSreaddir, stat as FSstate } from "@/utils/fs";
 import fileItem from "./Item.vue";
+// import CResizeContainer from "@/components/layout/ResizeContainer.vue";
 
 export default {
   name: "LorikeetPage",
   mounted() {
+    this.currentFolder = this.getHomedir();
     (async () => {
-      this.currentFolder = this.getHomedir();
-      this.itemList = await this.getFilesInFolder();
+      await this.getFilesInFolder(this.currentFolder);
       console.log("this.itemList", this.itemList);
     })();
   },
@@ -41,9 +47,9 @@ export default {
     getHomedir() {
       return os.homedir();
     },
-    async getFilesInFolder() {
+    async getFilesInFolder(filesPath) {
+      let vm = this;
       try {
-        let filesPath = this.getHomedir();
         let files = await FSreaddir(filesPath);
         console.time("Promise");
         let itemList = await Promise.all(
@@ -64,16 +70,21 @@ export default {
           })
         );
         console.timeEnd("Promise");
-        return itemList;
+        return (vm.itemList = itemList);
       } catch (error) {
         console.log(error);
       }
+    },
+    handleClickItem(item) {
+      console.log(item);
     },
     open(link) {
       this.$electron.shell.openExternal(link);
     }
   },
-  components: { fileItem }
+  components: {
+    fileItem
+  }
 };
 </script>
 
