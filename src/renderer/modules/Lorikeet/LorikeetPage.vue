@@ -2,7 +2,16 @@
   <div id="lorikeet-wrapper">
     <div id="toolbar">
       <el-input placeholder="请输入内容" v-model="search" class="input-with-select">
-        <template slot="prepend">{{currentFolder}}</template>
+        <template slot="prepend">
+          <el-select v-model="currentFolder" placeholder="请选择">
+            <el-option
+              v-for="item in folderHistory"
+              :key="item.subIndex"
+              :label="item.path"
+              :value="item.path"
+            ></el-option>
+          </el-select>
+        </template>
         <el-button slot="append" icon="el-icon-search"></el-button>
       </el-input>
     </div>
@@ -24,21 +33,22 @@
 import os from "os";
 import { resolve, basename } from "path";
 import { readdir as FSreaddir, stat as FSstate } from "@/utils/fs";
+import { shell } from "electron";
 import fileItem from "./Item.vue";
 // import CResizeContainer from "@/components/layout/ResizeContainer.vue";
 
 export default {
   name: "LorikeetPage",
   mounted() {
-    this.currentFolder = this.getHomedir();
     (async () => {
       await this.getFilesInFolder(this.currentFolder);
-      console.log("this.itemList", this.itemList);
     })();
   },
   data() {
+    let currentFolder = this.getHomedir();
     return {
-      currentFolder: "",
+      currentFolder,
+      folderHistory: [],
       itemList: "",
       search: ""
     };
@@ -76,10 +86,36 @@ export default {
       }
     },
     handleClickItem(item) {
-      console.log(item);
+      let vm = this;
+      console.log(item.type);
+      let strategy = {
+        file() {
+          shell.showItemInFolder(item.path);
+        },
+        directory() {
+          vm.currentFolder = item.path;
+        }
+      };
+      strategy[item.type] && strategy[item.type]();
     },
     open(link) {
       this.$electron.shell.openExternal(link);
+    }
+  },
+  watch: {
+    search(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        console.log(newValue);
+      }
+    },
+    currentFolder(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        let subIndex = this.folderHistory.length;
+        this.folderHistory.push({ path: oldValue, subIndex });
+        (async () => {
+          await this.getFilesInFolder(newValue);
+        })();
+      }
     }
   },
   components: {
