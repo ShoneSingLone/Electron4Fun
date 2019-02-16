@@ -40,6 +40,13 @@ import fileItem from "./Item.vue";
 export default {
   name: "LorikeetPage",
   mounted() {
+    function displayNote(event, note) {
+      console.log(event, note);
+    }
+
+    const ipc = require("electron").ipcRenderer;
+    ipc.on("displayNote", displayNote);
+
     (async () => {
       await this.getFilesInFolder(this.currentFolder);
     })();
@@ -75,7 +82,7 @@ export default {
               path,
               type
             };
-            console.log("file", item);
+            // console.log("file", item);
             return item;
           })
         );

@@ -105,5 +105,5 @@ export let exists = function (path) {
             exists ? resolve(path) :
                 reject(false);
         })
-    });
+    }); 
 };
